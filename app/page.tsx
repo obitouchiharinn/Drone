@@ -1376,7 +1376,7 @@ export default function Home() {
           },
         })
       }
-    }, 39)
+    }, 31)
 
     // Spectrum sections are controlled by the interval sequence (Radio, Microwave, Ultraviolet)
 
