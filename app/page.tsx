@@ -84,7 +84,7 @@ export default function Home() {
     const armRadius = 0.08
     const arms: THREE.Mesh[] = []
     const motors: THREE.Mesh[] = []
-    const propellers: THREE.Mesh[] = []
+    const propellers: THREE.Group[] = []
 
     const armPositions = [
       { x: 1, z: 1 },
@@ -160,10 +160,12 @@ export default function Home() {
       propellers.push(propellerGroup)
 
       const ledGeometry = new THREE.SphereGeometry(0.05, 8, 8)
-      const ledMaterial = new THREE.MeshBasicMaterial({
+      const ledMaterial = new THREE.MeshStandardMaterial({
         color: index % 2 === 0 ? 0x0066ff : 0xff3300,
         emissive: index % 2 === 0 ? 0x0066ff : 0xff3300,
         emissiveIntensity: 1,
+        metalness: 0,
+        roughness: 0.2,
       })
       const led = new THREE.Mesh(ledGeometry, ledMaterial)
       led.position.x = pos.x * armLength
@@ -242,12 +244,14 @@ export default function Home() {
     for (let i = 0; i < dotCount; i++) {
       const angle = (i / dotCount) * Math.PI * 2
       const dotGeometry = new THREE.SphereGeometry(0.15, 16, 16)
-      const dotMaterial = new THREE.MeshBasicMaterial({
+      const dotMaterial = new THREE.MeshStandardMaterial({
         color: 0xff0033,
         emissive: 0xff0033,
         emissiveIntensity: 1,
         transparent: true,
         opacity: 0,
+        metalness: 0,
+        roughness: 0.2,
       })
       const dot = new THREE.Mesh(dotGeometry, dotMaterial)
       dot.position.x = Math.cos(angle) * dotRadius
@@ -485,7 +489,7 @@ export default function Home() {
       }
     }
 
-    const tl = gsap.timeline()
+    const tl: any = gsap.timeline()
 
     // Propeller startup
     tl.to(
@@ -703,7 +707,7 @@ export default function Home() {
       15.9,
     )
 
-    tl.add(() => {
+    (tl as any).add(() => {
       setCurrentSection("swarm")
 
       // Hide detection dots and remove any lingering red meshes for a clean swarm view
@@ -1079,7 +1083,7 @@ export default function Home() {
 
     tl.to({}, { duration: 1.5 }, "+=0")
 
-    tl.add(() => {
+    (tl as any).add(() => {
       // Hide main drone and reticle
       reticleGroup.visible = false
       gsap.killTweensOf(reticleGroup.rotation)
@@ -1192,7 +1196,7 @@ export default function Home() {
       return () => clearInterval(interval)
     }, 23)
 
-    tl.add(() => {
+    (tl as any).add(() => {
       const radioWaves: THREE.Mesh[] = []
       const waveCount = 20
 
@@ -1251,7 +1255,7 @@ export default function Home() {
       }
     }, 23)
 
-    tl.add(() => {
+    (tl as any).add(() => {
       const microwaveWaves: THREE.Mesh[] = []
       const waveCount = 20
 
@@ -1319,7 +1323,7 @@ export default function Home() {
       }
     }, 27)
 
-    tl.add(() => {
+    (tl as any).add(() => {
       const uvRings: THREE.Mesh[] = []
       const ringCount = 6
 
