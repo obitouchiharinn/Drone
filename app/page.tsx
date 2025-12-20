@@ -6,7 +6,10 @@ import gsap from "gsap"
 
 export default function Home() {
   const mountRef = useRef<HTMLDivElement>(null)
-  const [currentSection, setCurrentSection] = useState<"hero" | "jamming" | "detector" | "swarm" | "spectrum">("hero")
+  const sceneRef = useRef<THREE.Scene | null>(null)
+  const cameraRef = useRef<THREE.PerspectiveCamera | null>(null)
+  const rendererRef = useRef<THREE.WebGLRenderer | null>(null)
+  const [currentSection, setCurrentSection] = useState<"hero" | "jamming" | "detector" | "swarm" | "spectrum" | "false-navigation">("hero")
   const [currentSpectrumSection, setCurrentSpectrumSection] = useState<number>(0)
 
   useEffect(() => {
@@ -15,6 +18,11 @@ export default function Home() {
     const scene = new THREE.Scene()
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true })
+    
+    // Keep refs updated
+    sceneRef.current = scene
+    cameraRef.current = camera
+    rendererRef.current = renderer
 
     renderer.setSize(window.innerWidth, window.innerHeight)
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
@@ -489,6 +497,7 @@ export default function Home() {
       }
     }
 
+    const isMobile = window.innerWidth <= 768
     const timeline: any = (gsap as any).timeline ? (gsap as any).timeline() : gsap.timeline()
 
     // Propeller startup
@@ -525,7 +534,7 @@ export default function Home() {
     timeline.to(
       droneGroup.position,
       {
-        x: 3.5,
+        x: isMobile ? 0 : 3.5,
         y: 0,
         duration: 1,
         ease: "power2.inOut",
@@ -552,7 +561,7 @@ export default function Home() {
     timeline.to(
       droneGroup.position,
       {
-        x: -3.5,
+        x: isMobile ? 0 : -3.5,
         y: 0,
         duration: 1,
         ease: "power2.inOut",
@@ -1030,33 +1039,40 @@ export default function Home() {
     }
 
     // Animation loop
+    let isMounted = true
     function animate() {
+      if (!isMounted) return
       requestAnimationFrame(animate)
 
-      propellers.forEach((propeller) => {
-        propeller.rotation.y += propellerSpeed
-      })
+      try {
+        propellers.forEach((propeller) => {
+          propeller.rotation.y += propellerSpeed
+        })
 
-      // Update neural link positions
-      neuralLinks.forEach((link) => {
-        const fromDrone = swarmDrones[link.userData.from]
-        const toDrone = swarmDrones[link.userData.to]
+        // Update neural link positions
+        neuralLinks.forEach((link) => {
+          const fromDrone = swarmDrones[link.userData.from]
+          const toDrone = swarmDrones[link.userData.to]
 
-        if (fromDrone.visible && toDrone.visible) {
-          const positions = link.geometry.attributes.position.array as Float32Array
-          positions[0] = fromDrone.position.x
-          positions[1] = fromDrone.position.y
-          positions[2] = fromDrone.position.z
-          positions[3] = toDrone.position.x
-          positions[4] = toDrone.position.y
-          positions[5] = toDrone.position.z
-          link.geometry.attributes.position.needsUpdate = true
-        }
-      })
+          if (fromDrone?.visible && toDrone?.visible) {
+            const positions = link.geometry.attributes.position.array as Float32Array
+            positions[0] = fromDrone.position.x
+            positions[1] = fromDrone.position.y
+            positions[2] = fromDrone.position.z
+            positions[3] = toDrone.position.x
+            positions[4] = toDrone.position.y
+            positions[5] = toDrone.position.z
+            link.geometry.attributes.position.needsUpdate = true
+          }
+        })
 
-      stars.rotation.y += 0.0001
+        stars.rotation.y += 0.0001
 
-      renderer.render(scene, camera)
+        renderer.render(scene, camera)
+      } catch (e) {
+        // Silently fail if rendering context is lost
+        isMounted = false
+      }
     }
 
     animate()
@@ -1184,8 +1200,8 @@ export default function Home() {
         ease: "power2.inOut",
       })
 
-      // Update spectrum section text — cycle only through Radio(0), Microwave(1), Ultraviolet(4)
-      const _seq = [0, 1, 4]
+      // Update spectrum section text — cycle through Visible(3), Radio(0), Microwave(1), Ultraviolet(4)
+      const _seq = [3, 0, 1, 4]
       let _si = 0
       setCurrentSpectrumSection(_seq[_si])
       const interval = setInterval(() => {
@@ -1193,9 +1209,52 @@ export default function Home() {
         setCurrentSpectrumSection(_seq[_si])
       }, 4000)
 
+      // Stop the interval before FALSE NAVIGATION SIGNAL starts (at 39s)
+      gsap.delayedCall(16, () => {
+        clearInterval(interval)
+      })
+
       return () => clearInterval(interval)
     }, 23)
 
+    // Visible Light: display prism dispersion GIF (4s display)
+    timeline.add(() => {
+      // Create container for the GIF image
+      const imageContainer = document.createElement('div')
+      imageContainer.style.position = 'fixed'
+      imageContainer.style.top = '55%'
+      imageContainer.style.left = '50%'
+      imageContainer.style.transform = 'translate(-50%, -50%)'
+      imageContainer.style.zIndex = '100'
+      imageContainer.style.pointerEvents = 'none'
+      
+      const img = document.createElement('img')
+      img.src = 'https://upload.wikimedia.org/wikipedia/commons/f/f5/Light_dispersion_conceptual_waves.gif'
+      img.style.width = '500px'
+      img.style.height = 'auto'
+      img.style.maxWidth = '70vw'
+      img.style.objectFit = 'contain'
+      img.style.opacity = '0'
+      
+      imageContainer.appendChild(img)
+      document.body.appendChild(imageContainer)
+      
+      // Fade in the image
+      gsap.to(img, { opacity: 1, duration: 0.5 })
+      
+      // Hold for 4 seconds then fade out
+      gsap.delayedCall(3.5, () => {
+        gsap.to(img, { 
+          opacity: 0, 
+          duration: 0.5,
+          onComplete: () => {
+            document.body.removeChild(imageContainer)
+          }
+        })
+      })
+    }, 23)
+
+    // Radio waves (after Visible Light)
     timeline.add(() => {
       const radioWaves: THREE.Mesh[] = []
       const waveCount = 20
@@ -1253,7 +1312,7 @@ export default function Home() {
           },
         })
       }
-    }, 23)
+    }, 27)
 
     timeline.add(() => {
       const microwaveWaves: THREE.Mesh[] = []
@@ -1321,7 +1380,7 @@ export default function Home() {
           },
         })
       }
-    }, 27)
+    }, 31)
 
     timeline.add(() => {
       const uvRings: THREE.Mesh[] = []
@@ -1336,7 +1395,17 @@ export default function Home() {
           side: THREE.DoubleSide,
         })
         const ring = new THREE.Mesh(ringGeometry, ringMaterial)
-        ring.position.z = -5
+        // start very small so it grows from inside -> outside
+        ring.scale.set(0.01, 0.01, 0.01)
+        // place differently on mobile: show from a top view so rings appear above
+        const isMobileView = window.innerWidth <= 768
+        if (isMobileView) {
+          ring.position.set(0, 4 - i * 0.2, -2)
+          // rotate to face the camera from above
+          ring.rotation.x = -Math.PI / 2
+        } else {
+          ring.position.z = -5
+        }
         scene.add(ring)
         uvRings.push(ring)
 
@@ -1348,11 +1417,11 @@ export default function Home() {
           ease: "power4.out",
         })
 
-        // Quick expansion
+        // Quick expansion from small -> big (inside to outside)
         gsap.to(ring.scale, {
           x: 8,
           y: 8,
-          duration: 0.5,
+          duration: 0.8,
           delay: i * 0.6,
           ease: "power2.out",
         })
@@ -1376,13 +1445,317 @@ export default function Home() {
           },
         })
       }
-    }, 31)
+    }, 35)
+
+    // FALSE NAVIGATION SIGNAL (10-second 3-line animation)
+    timeline.add(() => {
+      setCurrentSection("false-navigation")
+
+      // Static camera setup - looking at center
+      camera.position.set(0, 0, 15)
+      camera.lookAt(0, 0, 0)
+
+      const pathSegments = 200
+      const lineSpacing = 3 // Increased vertical spacing between the 3 lines
+      const lines = []
+      const pathCurves = []
+      const pulseGroups = []
+      const destMarkers = []
+      const destLabels = []
+
+      // Create 3 navigation lines
+      for (let lineIdx = 0; lineIdx < 3; lineIdx++) {
+        const baseY = (lineIdx - 1) * lineSpacing // Top: 3, Middle: 0, Bottom: -3
+        const pathPoints = []
+
+        // Generate path points - initially all straight
+        for (let i = 0; i <= pathSegments; i++) {
+          const t = i / pathSegments
+          const x = -10 + t * 20 // Left to right
+          let y = baseY
+
+          pathPoints.push(new THREE.Vector3(x, y, 0))
+        }
+
+        const pathCurve = new THREE.CatmullRomCurve3(pathPoints)
+        pathCurves.push(pathCurve)
+
+        // Create line geometry (straight at start)
+        const lineTubeGeometry = new THREE.TubeGeometry(pathCurve, pathSegments, 0.08, 8, false)
+        const lineMaterial = new THREE.MeshBasicMaterial({
+          color: 0x00ff99, // Green/cyan
+          transparent: true,
+          opacity: 0,
+          emissive: 0x00cc77,
+          emissiveIntensity: 0.3,
+        })
+        const lineMesh = new THREE.Mesh(lineTubeGeometry, lineMaterial)
+        scene.add(lineMesh)
+        lines.push({ 
+          mesh: lineMesh, 
+          material: lineMaterial, 
+          isCorrect: lineIdx === 1,
+          lineIdx: lineIdx,
+          baseY: baseY,
+          geometry: lineTubeGeometry
+        })
+
+        // PHASE 1: Fade in all lines (0-4s)
+        gsap.to(lineMaterial, {
+          opacity: 0.7,
+          duration: 4,
+          ease: "power2.out",
+        })
+
+        // PHASE 3: Color shift for false lines (7-10s)
+        // Top line (lineIdx=1, correct) stays green
+        if (lineIdx !== 1) {
+          gsap.to(lineMaterial, {
+            color: 0xffdd88, // Pale yellow
+            emissive: 0xffcc55,
+            duration: 1.5,
+            delay: 7,
+            ease: "sine.inOut",
+          })
+        }
+
+        // Create pulses traveling along each line
+        const pulseCount = 6
+        const pulseGroup = new THREE.Group()
+
+        for (let i = 0; i < pulseCount; i++) {
+          const pulseGeometry = new THREE.SphereGeometry(0.12, 16, 16)
+          const pulseMaterial = new THREE.MeshBasicMaterial({
+            color: 0x00ff99,
+            transparent: true,
+            opacity: 0.8,
+            emissive: 0x00ff99,
+            emissiveIntensity: 0.8,
+          })
+          const pulse = new THREE.Mesh(pulseGeometry, pulseMaterial)
+          pulseGroup.add(pulse)
+
+          // Stagger pulses along line
+          const startRatio = (i / pulseCount) * 0.2
+          gsap.to({ progress: startRatio }, {
+            progress: startRatio + 1.0,
+            duration: 9.5,
+            delay: 0.2,
+            ease: "linear",
+            onUpdate: function () {
+              const currentProgress = (this.targets()[0].progress) % 1
+              const point = pathCurves[lineIdx].getPoint(currentProgress)
+              pulse.position.copy(point)
+            },
+          })
+
+          // Color shift for pulses on false lines (7-10s)
+          if (lineIdx !== 1) {
+            gsap.to(pulseMaterial, {
+              color: 0xffdd88,
+              emissive: 0xffcc55,
+              duration: 1.5,
+              delay: 7,
+              ease: "sine.inOut",
+            })
+          }
+        }
+        scene.add(pulseGroup)
+        pulseGroups.push(pulseGroup)
+      }
+
+      // Destination markers with text labels (use same spacing as lines)
+      const destData = [
+        { x: 10, y: (0 - 1) * lineSpacing, color: 0xffdd88, label: "FALSE LOCATION", lineIdx: 0, isCorrect: false }, // Bottom (false)
+        { x: 10, y: (1 - 1) * lineSpacing, color: 0x00ff99, label: "SAFE LOCATION", lineIdx: 1, isCorrect: true }, // Middle (safe/correct)
+        { x: 10, y: (2 - 1) * lineSpacing, color: 0xffdd88, label: "FALSE LOCATION", lineIdx: 2, isCorrect: false }, // Top (false)
+      ]
+
+      for (let i = 0; i < destData.length; i++) {
+        const data = destData[i]
+        const destGeometry = new THREE.SphereGeometry(0.3, 16, 16)
+        const destMaterial = new THREE.MeshBasicMaterial({
+          color: data.color,
+          transparent: true,
+          opacity: 0,
+          emissive: data.color,
+          emissiveIntensity: 0.5,
+        })
+        const dest = new THREE.Mesh(destGeometry, destMaterial)
+        dest.position.set(data.x, data.y, 0)
+        scene.add(dest)
+        destMarkers.push({ mesh: dest, material: destMaterial, isCorrect: data.isCorrect })
+
+        // Create text label
+        const labelDiv = document.createElement('div')
+        labelDiv.style.position = 'fixed'
+        labelDiv.style.color = data.isCorrect ? '#00ff99' : '#ffdd88'
+        labelDiv.style.fontSize = '14px'
+        labelDiv.style.fontFamily = 'monospace'
+        labelDiv.style.fontWeight = 'bold'
+        labelDiv.style.textShadow = '0 0 10px ' + (data.isCorrect ? '#00ff99' : '#ffdd88')
+        labelDiv.style.pointerEvents = 'none'
+        labelDiv.style.zIndex = '40'
+        labelDiv.style.whiteSpace = 'nowrap'
+        labelDiv.textContent = data.label
+        document.body.appendChild(labelDiv)
+        destLabels.push({ div: labelDiv, dest: dest, camera: camera })
+
+        // Update label position each frame
+        const updateLabelPosition = () => {
+          const vector = new THREE.Vector3()
+          vector.copy(dest.position)
+          vector.project(camera)
+          const x = (vector.x * 0.5 + 0.5) * window.innerWidth
+          const y = (-(vector.y * 0.5) + 0.5) * window.innerHeight
+          // Position label beside the projected point, with mobile-safe clamping
+          let left = x + 20
+          const isMobile = window.innerWidth <= 768
+          if (isMobile) {
+            // If the label would fall too far right on small screens, move it left of the point
+            if (left > window.innerWidth * 0.7) {
+              left = x - 120
+            }
+          }
+          // Clamp within viewport (fallback width used if offsetWidth is 0)
+          const labelWidth = labelDiv.offsetWidth || 120
+          left = Math.max(8, Math.min(left, window.innerWidth - labelWidth - 8))
+          labelDiv.style.left = left + 'px'
+          labelDiv.style.top = Math.max(8, Math.min(y - 10, window.innerHeight - 24)) + 'px'
+          labelDiv.style.opacity = destMaterial.opacity
+        }
+
+        if (data.isCorrect) {
+          // Safe/correct location appears in PHASE 1 (0.5-4s)
+          gsap.to(destMaterial, {
+            opacity: 0.4,
+            duration: 0.5,
+            delay: 0.5,
+            ease: "power2.out",
+            onUpdate: updateLabelPosition,
+          })
+          // Stays visible through phase 2 and 3
+          gsap.to(destMaterial, {
+            opacity: 0.3,
+            duration: 0,
+            delay: 4,
+            onUpdate: updateLabelPosition,
+          })
+          // Becomes subtle in phase 3
+          gsap.to(destMaterial, {
+            opacity: 0.15,
+            duration: 1,
+            delay: 7,
+            ease: "sine.out",
+            onUpdate: updateLabelPosition,
+          })
+        } else {
+          // False locations appear at PHASE 2 start (4s)
+          gsap.to(destMaterial, {
+            opacity: 0.7,
+            duration: 0.6,
+            delay: 4,
+            ease: "power2.out",
+            onUpdate: updateLabelPosition,
+          })
+        }
+      }
+
+      // Animate line curves during PHASE 2 (4-7s)
+      // Recreate geometries to show curves
+      const curveAnimationTimeline = gsap.timeline({ delay: 4 })
+      curveAnimationTimeline.to({ curveAmount: 0 }, {
+        curveAmount: 1,
+        duration: 3,
+        ease: "sine.inOut",
+        onUpdate: function () {
+          const progress = this.targets()[0].curveAmount
+          
+          // Update bottom line (curves downward) - lineIdx 0, baseY = -lineSpacing
+          const bottomPathPoints = []
+          for (let i = 0; i <= pathSegments; i++) {
+            const t = i / pathSegments
+            const x = -10 + t * 20
+            let y = (0 - 1) * lineSpacing // Keep base Y position (bottom)
+            // Create parabola that only curves downward
+            const parabola = t * (1 - t) * 4 // Max at t=0.5
+            y -= progress * parabola * 1.2 // Only negative
+            bottomPathPoints.push(new THREE.Vector3(x, y, 0))
+          }
+          const bottomCurve = new THREE.CatmullRomCurve3(bottomPathPoints)
+          pathCurves[0] = bottomCurve
+          
+          // Update top line (curves upward) - lineIdx 2, baseY = lineSpacing
+          const topPathPoints = []
+          for (let i = 0; i <= pathSegments; i++) {
+            const t = i / pathSegments
+            const x = -10 + t * 20
+            let y = (2 - 1) * lineSpacing // Keep base Y position (top)
+            // Create parabola that only curves upward
+            const parabola = t * (1 - t) * 4 // Max at t=0.5
+            y += progress * parabola * 1.2 // Only positive
+            topPathPoints.push(new THREE.Vector3(x, y, 0))
+          }
+          const topCurve = new THREE.CatmullRomCurve3(topPathPoints)
+          pathCurves[2] = topCurve
+
+          // Recreate geometries for curved lines
+          lines[0].geometry.dispose()
+          lines[0].geometry = new THREE.TubeGeometry(bottomCurve, pathSegments, 0.08, 8, false)
+          lines[0].mesh.geometry = lines[0].geometry
+
+          lines[2].geometry.dispose()
+          lines[2].geometry = new THREE.TubeGeometry(topCurve, pathSegments, 0.08, 8, false)
+          lines[2].mesh.geometry = lines[2].geometry
+        }
+      })
+
+      // Cleanup after 10 seconds
+      gsap.delayedCall(10, () => {
+        lines.forEach(line => {
+          gsap.to(line.material, { opacity: 0, duration: 0.5 })
+        })
+        pulseGroups.forEach(group => {
+          group.children.forEach(pulse => {
+            gsap.to(pulse.material, { opacity: 0, duration: 0.5 })
+          })
+        })
+        destMarkers.forEach(marker => {
+          gsap.to(marker.material, { opacity: 0, duration: 0.5 })
+        })
+
+        gsap.delayedCall(0.5, () => {
+          lines.forEach(line => {
+            scene.remove(line.mesh)
+            line.geometry.dispose()
+          })
+          pulseGroups.forEach(group => scene.remove(group))
+          destMarkers.forEach(marker => scene.remove(marker.mesh))
+          destLabels.forEach(label => {
+            try {
+              document.body.removeChild(label.div)
+            } catch (e) {
+              // Already removed
+            }
+          })
+        })
+      })
+
+
+    }, 39)
 
     // Spectrum sections are controlled by the interval sequence (Radio, Microwave, Ultraviolet)
 
     return () => {
+      isMounted = false
       window.removeEventListener("resize", handleResize)
-      mountRef.current?.removeChild(renderer.domElement)
+      try {
+        if (renderer && renderer.domElement && mountRef.current) {
+          mountRef.current.removeChild(renderer.domElement)
+        }
+      } catch (e) {
+        // Silently fail if dom element already removed
+      }
       timeline.kill()
     }
   }, [])
@@ -1396,8 +1769,9 @@ export default function Home() {
           <h1 className="text-3xl md:text-5xl lg:text-7xl font-bold text-cyan-400 mb-3 md:mb-6 leading-tight tracking-tight">
             PSYC Aerospace and Defence Industries Pvt Ltd
           </h1>
-          <p className="text-sm md:text-lg lg:text-2xl text-gray-300 leading-relaxed">
-            AI-First payload systems | Computer vision and Automation for next gen wars
+          <p className="text-xs md:text-lg lg:text-2xl text-gray-300 leading-relaxed">
+            <span className="block md:inline whitespace-nowrap">AI-First payload systems | Computer vision</span>
+            <span className="block md:inline whitespace-nowrap">Automation for next gen wars</span>
           </p>
         </div>
       )}
@@ -1440,7 +1814,7 @@ export default function Home() {
           </div>
 
           <div
-            className="fixed top-1/2 -translate-y-1/2 pointer-events-auto z-50 spectrum-section-text transition-all duration-1000"
+            className={"fixed top-1/2 -translate-y-1/2 pointer-events-auto z-50 spectrum-section-text transition-all duration-1000 " + ([0,1,3,4].includes(currentSpectrumSection) ? "spectrum-visible" : "")}
             style={{
               left:
                 currentSpectrumSection === 0
@@ -1497,6 +1871,17 @@ export default function Home() {
         </>
       )}
 
+      {currentSection === "false-navigation" && (
+        <div className="fixed top-8 md:top-12 lg:top-16 left-1/2 -translate-x-1/2 text-center pointer-events-auto z-50 false-nav-text">
+          <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold text-yellow-400 mb-3 tracking-wider font-mono">
+            FALSE NAVIGATION SIGNAL
+          </h2>
+          <p className="text-sm md:text-lg text-yellow-300 tracking-widest font-mono">
+            Deceptive guidance without disruption
+          </p>
+        </div>
+      )}
+
       <style jsx>{`
         @keyframes fadeInLeft {
           from {
@@ -1551,6 +1936,10 @@ export default function Home() {
           opacity: 0;
         }
 
+        .false-nav-text {
+          opacity: 1;
+        }
+
         .spectrum-text {
           animation: fadeInDown 1s ease-out 0.5s forwards;
           opacity: 0;
@@ -1571,7 +1960,7 @@ export default function Home() {
             .hero-text {
               left: 50% !important;
               transform: translate(-50%, 0) !important;
-              top: 12% !important;
+              top: 18% !important;
               max-width: 90% !important;
               text-align: center !important;
               padding: 0 1rem !important;
@@ -1588,6 +1977,43 @@ export default function Home() {
               overflow: hidden !important;
               text-wrap: normal !important;
               word-break: keep-all !important;
+            }
+            /* Place jamming title above the drone on mobile */
+            .jamming-text {
+              left: 50% !important;
+              right: auto !important;
+              transform: translate(-50%, 0) !important;
+              top: calc(40% - 10rem) !important;
+              text-align: center !important;
+              max-width: 90% !important;
+            }
+            /* Place detector title at the same position as jamming on mobile */
+            .detector-text {
+              position: fixed !important;
+              left: calc(50vw + 8px) !important;
+              right: auto !important;
+              transform: translateX(-50%) translateY(0) !important;
+              top: calc(40% - 10rem) !important;
+              text-align: center !important;
+              max-width: 90% !important;
+              width: max-content !important;
+              display: block !important;
+              margin: 0 auto !important;
+            }
+            /* Adjust Visible Light + related spectrum positions on mobile: move further up and a bit left */
+            .spectrum-section-text.spectrum-visible {
+              left: calc(44% - 12px) !important;
+              top: calc(34% - 2.5rem) !important;
+            }
+
+            /* Reduce spectrum section heading sizes on mobile */
+            .spectrum-section-text h2 {
+              font-size: 1.25rem !important;
+              line-height: 1.05 !important;
+            }
+
+            .spectrum-section-text p {
+              font-size: 0.85rem !important;
             }
         }
       `}</style>
