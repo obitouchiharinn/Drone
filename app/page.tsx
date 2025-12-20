@@ -1457,11 +1457,18 @@ export default function Home() {
 
       const pathSegments = 200
       const lineSpacing = 3 // Increased vertical spacing between the 3 lines
-      const lines = []
-      const pathCurves = []
-      const pulseGroups = []
-      const destMarkers = []
-      const destLabels = []
+      const lines: Array<{
+        mesh: THREE.Mesh
+        material: THREE.Material
+        isCorrect: boolean
+        lineIdx: number
+        baseY: number
+        geometry: THREE.BufferGeometry
+      }> = []
+      const pathCurves: THREE.CatmullRomCurve3[] = []
+      const pulseGroups: THREE.Group[] = []
+      const destMarkers: Array<{ mesh: THREE.Mesh; material: THREE.Material; isCorrect: boolean }> = []
+      const destLabels: Array<{ div: HTMLDivElement; dest: THREE.Mesh; camera: THREE.Camera }> = []
 
       // Create 3 navigation lines
       for (let lineIdx = 0; lineIdx < 3; lineIdx++) {
@@ -1482,12 +1489,14 @@ export default function Home() {
 
         // Create line geometry (straight at start)
         const lineTubeGeometry = new THREE.TubeGeometry(pathCurve, pathSegments, 0.08, 8, false)
-        const lineMaterial = new THREE.MeshBasicMaterial({
+        const lineMaterial = new THREE.MeshStandardMaterial({
           color: 0x00ff99, // Green/cyan
           transparent: true,
           opacity: 0,
           emissive: 0x00cc77,
           emissiveIntensity: 0.3,
+          metalness: 0,
+          roughness: 0.5,
         })
         const lineMesh = new THREE.Mesh(lineTubeGeometry, lineMaterial)
         scene.add(lineMesh)
@@ -1525,12 +1534,14 @@ export default function Home() {
 
         for (let i = 0; i < pulseCount; i++) {
           const pulseGeometry = new THREE.SphereGeometry(0.12, 16, 16)
-          const pulseMaterial = new THREE.MeshBasicMaterial({
+          const pulseMaterial = new THREE.MeshStandardMaterial({
             color: 0x00ff99,
             transparent: true,
             opacity: 0.8,
             emissive: 0x00ff99,
             emissiveIntensity: 0.8,
+            metalness: 0,
+            roughness: 0.2,
           })
           const pulse = new THREE.Mesh(pulseGeometry, pulseMaterial)
           pulseGroup.add(pulse)
@@ -1574,12 +1585,14 @@ export default function Home() {
       for (let i = 0; i < destData.length; i++) {
         const data = destData[i]
         const destGeometry = new THREE.SphereGeometry(0.3, 16, 16)
-        const destMaterial = new THREE.MeshBasicMaterial({
+        const destMaterial = new THREE.MeshStandardMaterial({
           color: data.color,
           transparent: true,
           opacity: 0,
           emissive: data.color,
           emissiveIntensity: 0.5,
+          metalness: 0,
+          roughness: 0.4,
         })
         const dest = new THREE.Mesh(destGeometry, destMaterial)
         // On small screens lift the marker slightly above the line so it appears 'above' the path
@@ -1624,7 +1637,7 @@ export default function Home() {
           left = Math.max(8, Math.min(left, window.innerWidth - labelWidth - 8))
           labelDiv.style.left = left + 'px'
           labelDiv.style.top = Math.max(8, Math.min(y - 10, window.innerHeight - 24)) + 'px'
-          labelDiv.style.opacity = destMaterial.opacity
+          labelDiv.style.opacity = String((destMaterial as any).opacity ?? 0)
         }
 
         if (data.isCorrect) {
@@ -1719,7 +1732,7 @@ export default function Home() {
         })
         pulseGroups.forEach(group => {
           group.children.forEach(pulse => {
-            gsap.to(pulse.material, { opacity: 0, duration: 0.5 })
+            gsap.to((pulse as THREE.Mesh).material as any, { opacity: 0, duration: 0.5 })
           })
         })
         destMarkers.forEach(marker => {
