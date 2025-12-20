@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react"
 import * as THREE from "three"
-import { gsap } from "gsap"
+import gsap from "gsap"
 
 export default function Home() {
   const mountRef = useRef<HTMLDivElement>(null)
@@ -489,10 +489,10 @@ export default function Home() {
       }
     }
 
-    const tl: any = gsap.timeline()
+    const timeline: any = (gsap as any).timeline ? (gsap as any).timeline() : gsap.timeline()
 
     // Propeller startup
-    tl.to(
+    timeline.to(
       { value: 0 },
       {
         value: 0.5,
@@ -505,7 +505,7 @@ export default function Home() {
     )
 
     // Hero entrance animation (0-3s)
-    tl.to(
+    timeline.to(
       droneGroup.position,
       {
         y: 0,
@@ -522,7 +522,7 @@ export default function Home() {
     )
 
     // Move to right side for hero section (3-4s)
-    tl.to(
+    timeline.to(
       droneGroup.position,
       {
         x: 3.5,
@@ -533,7 +533,7 @@ export default function Home() {
       3,
     )
 
-    tl.to(
+    timeline.to(
       droneGroup.rotation,
       {
         z: 0,
@@ -546,10 +546,10 @@ export default function Home() {
     )
 
     // Wait 2 seconds before jamming section (4-6s)
-    tl.to({}, { duration: 2 }, 4)
+    timeline.to({}, { duration: 2 }, 4)
 
     // Transition to jamming section (6-7s)
-    tl.to(
+    timeline.to(
       droneGroup.position,
       {
         x: -3.5,
@@ -564,7 +564,7 @@ export default function Home() {
     )
 
     // Jamming animations (7-10s)
-    tl.to(
+    timeline.to(
       droneGroup.position,
       {
         y: 0.3,
@@ -579,7 +579,7 @@ export default function Home() {
       7,
     )
 
-    tl.to(
+    timeline.to(
       droneGroup.rotation,
       {
         y: Math.PI * 2,
@@ -593,10 +593,10 @@ export default function Home() {
     )
 
     // Wait 2 seconds before detector section (10-12s)
-    tl.to({}, { duration: 2 }, 10)
+    timeline.to({}, { duration: 2 }, 10)
 
     // Cinematic push-in to detector section (12-13.5s)
-    tl.to(
+    timeline.to(
       camera.position,
       {
         z: 5,
@@ -610,7 +610,7 @@ export default function Home() {
       12,
     )
 
-    tl.to(
+    timeline.to(
       camera.rotation,
       {
         x: -Math.PI / 3,
@@ -620,7 +620,7 @@ export default function Home() {
       12,
     )
 
-    tl.to(
+    timeline.to(
       droneGroup.position,
       {
         x: 0,
@@ -632,7 +632,7 @@ export default function Home() {
       12,
     )
 
-    tl.to(
+    timeline.to(
       droneGroup.rotation,
       {
         x: 0,
@@ -648,7 +648,7 @@ export default function Home() {
       12,
     )
 
-    tl.to(
+    timeline.to(
       droneGroup.scale,
       {
         x: 2.8,
@@ -661,7 +661,7 @@ export default function Home() {
     )
 
     // Zoom out and increase main drone scale for better visibility (15.9-17s)
-    tl.to(
+    timeline.to(
       camera.position,
       {
         z: 12,
@@ -672,7 +672,7 @@ export default function Home() {
       15.9,
     )
 
-    tl.to(
+    timeline.to(
       droneGroup.position,
       {
         x: 0,
@@ -695,7 +695,7 @@ export default function Home() {
       15.9,
     )
 
-    tl.to(
+    timeline.to(
       droneGroup.scale,
       {
         x: 2.8,
@@ -707,7 +707,7 @@ export default function Home() {
       15.9,
     )
 
-    (tl as any).add(() => {
+    timeline.add(() => {
       setCurrentSection("swarm")
 
       // Hide detection dots and remove any lingering red meshes for a clean swarm view
@@ -1079,11 +1079,11 @@ export default function Home() {
 
     window.addEventListener("resize", handleResize)
 
-    tl.to({}, { duration: 4 }, "+=0")
+    timeline.to({}, { duration: 4 }, "+=0")
 
-    tl.to({}, { duration: 1.5 }, "+=0")
+    timeline.to({}, { duration: 1.5 }, "+=0")
 
-    (tl as any).add(() => {
+    timeline.add(() => {
       // Hide main drone and reticle
       reticleGroup.visible = false
       gsap.killTweensOf(reticleGroup.rotation)
@@ -1196,7 +1196,7 @@ export default function Home() {
       return () => clearInterval(interval)
     }, 23)
 
-    (tl as any).add(() => {
+    timeline.add(() => {
       const radioWaves: THREE.Mesh[] = []
       const waveCount = 20
 
@@ -1255,7 +1255,7 @@ export default function Home() {
       }
     }, 23)
 
-    (tl as any).add(() => {
+    timeline.add(() => {
       const microwaveWaves: THREE.Mesh[] = []
       const waveCount = 20
 
@@ -1323,7 +1323,7 @@ export default function Home() {
       }
     }, 27)
 
-    (tl as any).add(() => {
+    timeline.add(() => {
       const uvRings: THREE.Mesh[] = []
       const ringCount = 6
 
@@ -1383,7 +1383,7 @@ export default function Home() {
     return () => {
       window.removeEventListener("resize", handleResize)
       mountRef.current?.removeChild(renderer.domElement)
-      tl.kill()
+      timeline.kill()
     }
   }, [])
 
