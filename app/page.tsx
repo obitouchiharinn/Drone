@@ -1582,7 +1582,9 @@ export default function Home() {
           emissiveIntensity: 0.5,
         })
         const dest = new THREE.Mesh(destGeometry, destMaterial)
-        dest.position.set(data.x, data.y, 0)
+        // On small screens lift the marker slightly above the line so it appears 'above' the path
+        const mobileMarkerOffset = window.innerWidth <= 768 ? 0.6 : 0
+        dest.position.set(data.x, data.y + mobileMarkerOffset, 0)
         scene.add(dest)
         destMarkers.push({ mesh: dest, material: destMaterial, isCorrect: data.isCorrect })
 
