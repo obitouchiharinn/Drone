@@ -1918,7 +1918,7 @@ export default function Home() {
                   ? "calc(75%)"
                   : "calc(25%)",
               top: (typeof window !== 'undefined' && window.innerWidth <= 768 && currentSpectrumSection === 1)
-                ? "62%"
+                ? "66%"
                 : currentSpectrumSection === 0 ||
                   currentSpectrumSection === 1 ||
                   currentSpectrumSection === 4
@@ -2055,7 +2055,7 @@ export default function Home() {
             /* Mobile layout: center title at top and keep drone below */
             .hero-text {
               left: 50% !important;
-              transform: translate(calc(-50% + 2px), 0) !important;
+              transform: translate(-50%, 0) !important;
               top: 18% !important;
               max-width: 90% !important;
               text-align: center !important;
@@ -2090,7 +2090,7 @@ export default function Home() {
               right: auto !important;
               transform: translate(-50%, 0) !important;
               /* raise slightly on mobile */
-              top: calc(34% - 10rem) !important;
+              top: calc(32% - 10rem) !important;
               text-align: center !important;
               max-width: 90% !important;
               display: block !important;
