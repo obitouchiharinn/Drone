@@ -1912,22 +1912,23 @@ export default function Home() {
             className={"fixed top-1/2 -translate-y-1/2 pointer-events-auto z-50 spectrum-section-text transition-all duration-1000 " + ([0,1,3,4].includes(currentSpectrumSection) ? "spectrum-visible" : "")}
             style={{
               left:
-                currentSpectrumSection === 0
-                  ? "calc(10%)"
-                  : currentSpectrumSection === 3
-                  ? "calc(15%)"
+                currentSpectrumSection === 4
+                  ? "calc(10% + 130px)"
+                  : [0,1,3].includes(currentSpectrumSection)
+                  ? "calc(10% + 40px)"
                   : currentSpectrumSection % 2 === 0
                   ? "calc(75%)"
                   : "calc(25%)",
               top: (typeof window !== 'undefined' && window.innerWidth <= 768 && currentSpectrumSection === 1)
                 ? "calc(66% + 5px)"
                 : currentSpectrumSection === 0
-                ? "68%"
-                : currentSpectrumSection === 1 ||
-                  currentSpectrumSection === 4
-                ? "55%"
-                : "50%",
-              transform: "translate(-50%, -50%)",
+                ? "48%"
+                : currentSpectrumSection === 1 || currentSpectrumSection === 4
+                ? "48%"
+                : currentSpectrumSection === 3
+                ? "48%"
+                : "70%",
+              transform: "translate(calc(-50% + 25px), 0)",
             }}
           >
             {currentSpectrumSection === 0 && (
@@ -2100,7 +2101,6 @@ export default function Home() {
             .detector-text h2 {
               font-size: 2.25rem !important; /* matches tailwind text-4xl */
               line-height: 1.05 !important;
-            }
               text-align: center !important;
               max-width: 90% !important;
               display: block !important;
