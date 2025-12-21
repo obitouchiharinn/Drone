@@ -2090,10 +2090,10 @@ export default function Home() {
             /* Place detector title centered on mobile */
             .detector-text {
               position: fixed !important;
-              left: 70% !important;
+              left: 75% !important;
               right: auto !important;
               transform: translate(-50%+70px, 55px) !important;
-              top: calc(30% - 10rem) !important;
+              top: calc(40% - 10rem) !important;
               /* keep on the same mobile line */
               // top: calc(32% - 10rem) !important;
               text-align: center !important;
