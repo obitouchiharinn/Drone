@@ -1913,14 +1913,17 @@ export default function Home() {
             style={{
               left:
                 currentSpectrumSection === 0
-                  ? "calc(78%)"
+                  ? "calc(20%)"
+                  : currentSpectrumSection === 3
+                  ? "calc(15%)"
                   : currentSpectrumSection % 2 === 0
                   ? "calc(75%)"
                   : "calc(25%)",
               top: (typeof window !== 'undefined' && window.innerWidth <= 768 && currentSpectrumSection === 1)
-                ? "66%"
-                : currentSpectrumSection === 0 ||
-                  currentSpectrumSection === 1 ||
+                ? "calc(66% + 5px)"
+                : currentSpectrumSection === 0
+                ? "60%"
+                : currentSpectrumSection === 1 ||
                   currentSpectrumSection === 4
                 ? "55%"
                 : "50%",
@@ -2088,9 +2091,16 @@ export default function Home() {
               position: fixed !important;
               left: 50% !important;
               right: auto !important;
-              transform: translate(-50%, 0) !important;
+              transform: translate(calc(-50% + 5px), 0) !important;
               /* raise slightly on mobile */
               top: calc(32% - 10rem) !important;
+            }
+
+            /* Ensure detector heading matches jamming size on mobile */
+            .detector-text h2 {
+              font-size: 2.25rem !important; /* matches tailwind text-4xl */
+              line-height: 1.05 !important;
+            }
               text-align: center !important;
               max-width: 90% !important;
               display: block !important;
