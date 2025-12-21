@@ -2090,11 +2090,14 @@ export default function Home() {
             /* Place detector title centered on mobile */
             .detector-text {
               position: fixed !important;
-              left: 50% !important;
+              left: 70% !important;
               right: auto !important;
-              transform: translate(calc(-50% + 35px), 0) !important;
-              /* raise slightly on mobile */
-              top: calc(32% - 10rem) !important;
+              transform: translate(-50%+70px, 55px) !important;
+              top: calc(30% - 10rem) !important;
+              /* keep on the same mobile line */
+              // top: calc(32% - 10rem) !important;
+              text-align: center !important;
+              max-width: 90% !important;
             }
 
             /* Ensure detector heading matches jamming size on mobile */
