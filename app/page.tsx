@@ -104,6 +104,18 @@ export default function Home() {
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null)
   const [currentSection, setCurrentSection] = useState<"hero" | "jamming" | "detector" | "swarm" | "spectrum" | "false-navigation">("hero")
   const [currentSpectrumSection, setCurrentSpectrumSection] = useState<number>(0)
+  // Track client/mobility to avoid SSR/CSR mismatches when checking window dimensions
+  const [isClient, setIsClient] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    // Run only on client to initialize responsive state
+    setIsClient(true)
+    const updateMob = () => setIsMobile(window.innerWidth <= 768)
+    updateMob()
+    window.addEventListener('resize', updateMob)
+    return () => window.removeEventListener('resize', updateMob)
+  }, [])
 
   useEffect(() => {
     if (!mountRef.current) return
@@ -1890,7 +1902,7 @@ export default function Home() {
       )}
 
       {currentSection === "swarm" && (
-        <div className="fixed top-12 md:top-20 lg:top-24 left-2/3 -translate-x-1/2 text-center pointer-events-auto z-50 swarm-text max-w-[60%]" style={{ transform: 'translate(calc(-50% + 4px), 0)' }}>
+        <div className="fixed top-12 md:top-20 lg:top-24 left-2/3 -translate-x-1/2 text-center pointer-events-auto z-50 swarm-text max-w-[60%]" style={{ transform: 'translate(calc(-50% + 10px), 0)' }}>
           <h2 className="text-2xl md:text-4xl lg:text-6xl font-bold text-cyan-400 mb-2 md:mb-4 tracking-wider font-mono">
             UAV SWARM TECHNOLOGY
           </h2>
@@ -2111,7 +2123,7 @@ export default function Home() {
             }
             /* Adjust Visible Light + related spectrum positions on mobile: move further up and a bit left */
             .spectrum-section-text.spectrum-visible {
-              left: calc(44% - 12px) !important;
+              left: calc(44% - 11px) !important;
               top: calc(34% - 2.5rem) !important;
             }
 
