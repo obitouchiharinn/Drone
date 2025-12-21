@@ -1860,8 +1860,8 @@ export default function Home() {
       <div ref={mountRef} className="fixed inset-0 w-full h-full z-0" />
 
       {currentSection === "hero" && (
-        <div className="fixed top-3/5 -translate-y-1/2 left-8 md:left-16 lg:left-24 pointer-events-auto z-50 hero-text max-w-[45%]">
-          <h1 className="text-3xl md:text-5xl lg:text-7xl font-bold text-white mb-3 md:mb-6 leading-tight tracking-tight">
+        <div className="fixed top-3/5 -translate-y-1/2 left-8 md:left-16 lg:left-24 pointer-events-auto z-50 hero-text max-w-[90%] md:max-w-[45%]">
+          <h1 className="text-3xl md:text-5xl lg:text-7xl font-bold text-white mb-3 md:mb-6 leading-tight tracking-tight whitespace-normal">
             PSYC Aerospace and Defence Industries Pvt Ltd
           </h1>
           <p className="text-xs md:text-lg lg:text-2xl text-blue-300 leading-relaxed">
@@ -1917,12 +1917,13 @@ export default function Home() {
                   : currentSpectrumSection % 2 === 0
                   ? "calc(75%)"
                   : "calc(25%)",
-              top:
-                currentSpectrumSection === 0 ||
-                currentSpectrumSection === 1 ||
-                currentSpectrumSection === 4
-                  ? "55%"
-                  : "50%",
+              top: (typeof window !== 'undefined' && window.innerWidth <= 768 && currentSpectrumSection === 1)
+                ? "62%"
+                : currentSpectrumSection === 0 ||
+                  currentSpectrumSection === 1 ||
+                  currentSpectrumSection === 4
+                ? "55%"
+                : "50%",
               transform: "translate(-50%, -50%)",
             }}
           >
