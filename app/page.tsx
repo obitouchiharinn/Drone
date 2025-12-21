@@ -1,6 +1,99 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
+
+// Inline SVG icons used for spectrum subitems (keeps no external dependency)
+const RadioIcon = ({ className = "" }: any) => (
+  <svg className={className} width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path d="M2 12c0 5.523 4.477 10 10 10" stroke="#00aaff" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M6 12c0 3.314 2.686 6 6 6" stroke="#00aaff" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+    <circle cx="12" cy="12" r="2" fill="#00aaff" />
+  </svg>
+)
+
+const MicrowaveIcon = ({ className = "" }: any) => (
+  <svg className={className} width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <rect x="2" y="5" width="20" height="12" rx="2" stroke="#ff9900" strokeWidth="1.4" />
+    <path d="M4 9h6v6H4z" fill="#ff9900" opacity="0.15" />
+    <path d="M20 10v4" stroke="#ff9900" strokeWidth="1.6" strokeLinecap="round" />
+  </svg>
+)
+
+const InfraredIcon = ({ className = "" }: any) => (
+  <svg className={className} width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path d="M12 2c1.5 2 2 4 2 6 0 3-2 5-2 10" stroke="#ff4444" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M9 6c0 1.5 1 2 1 4" stroke="#ff4444" strokeWidth="1.6" strokeLinecap="round" />
+    <path d="M15 6c0 1.5-1 2-1 4" stroke="#ff4444" strokeWidth="1.6" strokeLinecap="round" />
+  </svg>
+)
+
+const VisibleIcon = ({ className = "" }: any) => (
+  <svg className={className} width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path d="M12 5c5 0 9 4 9 7s-4 7-9 7-9-4-9-7 4-7 9-7z" stroke="#e5e7eb" strokeWidth="1.4" fill="none" />
+    <circle cx="12" cy="12" r="2" fill="#e5e7eb" />
+  </svg>
+)
+
+const UVIcon = ({ className = "" }: any) => (
+  <svg className={className} width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path d="M12 2v4" stroke="#bb77ff" strokeWidth="1.6" strokeLinecap="round" />
+    <path d="M12 18v4" stroke="#bb77ff" strokeWidth="1.6" strokeLinecap="round" />
+    <path d="M4.9 4.9l2.8 2.8" stroke="#bb77ff" strokeWidth="1.4" strokeLinecap="round" />
+    <path d="M16.3 16.3l2.8 2.8" stroke="#bb77ff" strokeWidth="1.4" strokeLinecap="round" />
+    <circle cx="12" cy="12" r="3" stroke="#bb77ff" strokeWidth="1.2" />
+  </svg>
+)
+// Additional distinct icons for each spectrum point
+const RadioAntennaIcon = ({ className = "" }: any) => (
+  <svg className={className} width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path d="M12 20v-6" stroke="#00aaff" strokeWidth="1.6" strokeLinecap="round" />
+    <path d="M8 16c1.5-3 4-5 8-6" stroke="#00aaff" strokeWidth="1.4" strokeLinecap="round" />
+    <circle cx="12" cy="12" r="1.8" fill="#00aaff" />
+  </svg>
+)
+
+const SatelliteIcon = ({ className = "" }: any) => (
+  <svg className={className} width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path d="M3 21l6-6" stroke="#00aaff" strokeWidth="1.4" strokeLinecap="round" />
+    <rect x="12" y="4" width="8" height="6" rx="1" stroke="#00aaff" strokeWidth="1.4" />
+    <path d="M14 6l6 6" stroke="#00aaff" strokeWidth="1.4" strokeLinecap="round" />
+  </svg>
+)
+
+const RadarIcon = ({ className = "" }: any) => (
+  <svg className={className} width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <circle cx="12" cy="12" r="8" stroke="#ff9900" strokeWidth="1.4" />
+    <path d="M12 12L20 6" stroke="#ff9900" strokeWidth="1.4" strokeLinecap="round" />
+  </svg>
+)
+
+const CrosshairIcon = ({ className = "" }: any) => (
+  <svg className={className} width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <circle cx="12" cy="12" r="4" stroke="#ff9900" strokeWidth="1.4" />
+    <path d="M12 2v4M12 18v4M2 12h4M18 12h4" stroke="#ff9900" strokeWidth="1.4" strokeLinecap="round" />
+  </svg>
+)
+
+const ECMIcon = ({ className = "" }: any) => (
+  <svg className={className} width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path d="M3 12c3-4 8-6 13-5" stroke="#ff9900" strokeWidth="1.4" strokeLinecap="round" />
+    <path d="M3 16c3-2 8-3 13-1" stroke="#ff9900" strokeWidth="1.4" strokeLinecap="round" />
+    <rect x="2" y="2" width="20" height="20" rx="2" stroke="#ff9900" strokeWidth="0.6" />
+  </svg>
+)
+
+const ThermometerIcon = ({ className = "" }: any) => (
+  <svg className={className} width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path d="M14 14.76V6a2 2 0 10-4 0v8.76a3 3 0 104 0z" stroke="#ff4444" strokeWidth="1.4" fill="none" />
+  </svg>
+)
+
+const FireIcon = ({ className = "" }: any) => (
+  <svg className={className} width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path d="M12 2s4 3 4 7a4 4 0 11-8 0c0-4 4-7 4-7z" stroke="#ff4444" strokeWidth="1.4" fill="none" />
+    <path d="M12 14v6" stroke="#ff4444" strokeWidth="1.4" strokeLinecap="round" />
+  </svg>
+)
 import * as THREE from "three"
 import gsap from "gsap"
 
@@ -513,7 +606,7 @@ export default function Home() {
       0,
     )
 
-    // Hero entrance animation (0-3s)
+      // Hero entrance animation (0-3s)
     timeline.to(
       droneGroup.position,
       {
@@ -554,8 +647,8 @@ export default function Home() {
       3,
     )
 
-    // Wait 2 seconds before jamming section (4-6s)
-    timeline.to({}, { duration: 2 }, 4)
+    // Wait 0 seconds before jamming section (4s)
+    timeline.to({}, { duration: 0 }, 4)
 
     // Transition to jamming section (6-7s)
     timeline.to(
@@ -571,16 +664,15 @@ export default function Home() {
       },
       6,
     )
-
-    // Jamming animations (7-10s)
+    // Jamming animations (7-8s) - shortened by 2s
     timeline.to(
       droneGroup.position,
       {
         y: 0.3,
         duration: 1,
         ease: "sine.inOut",
-        repeat: 2,
-        yoyo: true,
+        repeat: 0,
+        yoyo: false,
         onStart: () => {
           propellerSpeed = 1.2
         },
@@ -592,7 +684,7 @@ export default function Home() {
       droneGroup.rotation,
       {
         y: Math.PI * 2,
-        duration: 3,
+        duration: 1,
         ease: "none",
         onComplete: () => {
           triggerBlueWaves()
@@ -601,32 +693,32 @@ export default function Home() {
       7,
     )
 
-    // Wait 2 seconds before detector section (10-12s)
-    timeline.to({}, { duration: 2 }, 10)
+    // Wait 0 seconds before detector section (10s)
+    timeline.to({}, { duration: 0 }, 10)
 
-    // Cinematic push-in to detector section (12-13.5s)
+    // Cinematic push-in to detector section (10-13s total)
     timeline.to(
       camera.position,
       {
         z: 5,
         y: 8,
-        duration: 1.5,
+        duration: 1,
         ease: "power3.inOut",
         onStart: () => {
           setCurrentSection("detector")
         },
       },
-      12,
+      10,
     )
 
     timeline.to(
       camera.rotation,
       {
         x: -Math.PI / 3,
-        duration: 1.5,
+        duration: 1,
         ease: "power3.inOut",
       },
-      12,
+      10,
     )
 
     timeline.to(
@@ -635,10 +727,10 @@ export default function Home() {
         x: 0,
         y: 0,
         z: 0,
-        duration: 1.5,
+        duration: 1,
         ease: "power2.inOut",
       },
-      12,
+      10,
     )
 
     timeline.to(
@@ -647,47 +739,24 @@ export default function Home() {
         x: 0,
         y: 0,
         z: 0,
-        duration: 1.5,
+        duration: 1,
         ease: "power2.inOut",
         onComplete: () => {
           reticleGroup.visible = true
           triggerRedWaves()
         },
       },
-      12,
+      10,
     )
 
-    timeline.to(
-      droneGroup.scale,
-      {
-        x: 2.8,
-        y: 2.8,
-        z: 2.8,
-        duration: 1.5,
-        ease: "power2.inOut",
-      },
-      12,
-    )
-
-    // Zoom out and increase main drone scale for better visibility (15.9-17s)
-    timeline.to(
-      camera.position,
-      {
-        z: 12,
-        y: 8,
-        duration: 1.1,
-        ease: "power2.inOut",
-      },
-      15.9,
-    )
-
+    // End detector: quickly hide reticle and dots and scale back by 13s
     timeline.to(
       droneGroup.position,
       {
         x: 0,
         y: 0,
         z: 0,
-        duration: 1.1,
+        duration: 0.2,
         ease: "power2.inOut",
         onStart: () => {
           reticleGroup.visible = false
@@ -701,7 +770,7 @@ export default function Home() {
           })
         },
       },
-      15.9,
+      13,
     )
 
     timeline.to(
@@ -710,10 +779,10 @@ export default function Home() {
         x: 2.8,
         y: 2.8,
         z: 2.8,
-        duration: 1.1,
+        duration: 0.2,
         ease: "power2.inOut",
       },
-      15.9,
+      13,
     )
 
     timeline.add(() => {
@@ -763,12 +832,12 @@ export default function Home() {
         // defensive
       }
 
-      // Top-view camera for swarm section
+      // Top-view camera for swarm section (faster)
       gsap.to(camera.position, {
         x: 0,
         y: 15,
         z: 5,
-        duration: 1.5,
+        duration: 0.5,
         ease: "power2.inOut",
       })
       
@@ -776,16 +845,16 @@ export default function Home() {
         x: -Math.PI / 2.5,
         y: 0,
         z: 0,
-        duration: 1.5,
+        duration: 0.5,
         ease: "power2.inOut",
       })
       
-      // Center main drone
+      // Center main drone (faster)
       gsap.to(droneGroup.position, {
         x: 0,
         y: 0,
         z: 0,
-        duration: 1.5,
+        duration: 0.5,
         ease: "power2.inOut",
       })
       
@@ -805,13 +874,13 @@ export default function Home() {
         x: 20,
         y: 20,
         z: 20,
-        duration: 2,
+        duration: 0.6,
         ease: "power2.out",
       })
 
       gsap.to(pulse.material, {
         opacity: 0,
-        duration: 2,
+        duration: 0.6,
         ease: "power2.out",
         onComplete: () => {
           droneGroup.remove(pulse)
@@ -835,13 +904,13 @@ export default function Home() {
         const targetZ = Math.sin(formationAngle) * formationRadius
         const targetY = 0
 
-        // Curved Bézier path animation
+        // Curved Bézier path animation (faster)
         gsap.to(drone.position, {
           x: targetX,
           y: targetY,
           z: targetZ,
-          duration: 3,
-          delay: index * 0.1,
+          duration: 0.9,
+          delay: index * 0.04,
           ease: "power2.inOut",
           onUpdate: function () {
             const progress = this.progress()
@@ -875,8 +944,8 @@ export default function Home() {
         // Look at center
         gsap.to(drone.rotation, {
           y: -formationAngle,
-          duration: 3,
-          delay: index * 0.1,
+          duration: 0.9,
+          delay: index * 0.04,
           ease: "power2.inOut",
         })
       })
@@ -911,9 +980,10 @@ export default function Home() {
             delay: Math.random() * 0.5,
           })
         })
-      }, 3500)
-    }, 17)
+      }, 500)
+    }, 13)
 
+    // Blue ring pulses for the jamming section: scale + fade durations = 2s
     function triggerBlueWaves() {
       blueWaves.forEach((wave, index) => {
         gsap.delayedCall(index * 0.2, () => {
@@ -1207,24 +1277,34 @@ export default function Home() {
       const interval = setInterval(() => {
         _si = (_si + 1) % _seq.length
         setCurrentSpectrumSection(_seq[_si])
-      }, 4000)
+      }, 2000)
 
-      // Stop the interval before FALSE NAVIGATION SIGNAL starts (at 39s)
-      gsap.delayedCall(16, () => {
+      // Stop the interval before FALSE NAVIGATION SIGNAL starts (at 25s)
+      gsap.delayedCall(8, () => {
         clearInterval(interval)
       })
 
       return () => clearInterval(interval)
-    }, 23)
+    }, 17)
 
-    // Visible Light: display prism dispersion GIF (4s display)
+    // Visible Light: display prism dispersion GIF (2s display)
     timeline.add(() => {
       // Create container for the GIF image
       const imageContainer = document.createElement('div')
       imageContainer.style.position = 'fixed'
-      imageContainer.style.top = '55%'
-      imageContainer.style.left = '50%'
-      imageContainer.style.transform = 'translate(-50%, -50%)'
+      // Adjust placement: centered on mobile, nudged left+down on desktop
+      const isMobilePrism = window.innerWidth <= 768
+      if (isMobilePrism) {
+        imageContainer.style.top = '55%'
+        imageContainer.style.left = '50%'
+        imageContainer.style.transform = 'translate(-50%, -50%)'
+      } else {
+        // Desktop: move prism to the right and slightly down from center
+        imageContainer.style.top = '62%'
+        imageContainer.style.left = '70%'
+        // translate back so the image sits slightly right of center and a bit lower
+        imageContainer.style.transform = 'translate(-50%, -35%)'
+      }
       imageContainer.style.zIndex = '100'
       imageContainer.style.pointerEvents = 'none'
       
@@ -1239,22 +1319,22 @@ export default function Home() {
       imageContainer.appendChild(img)
       document.body.appendChild(imageContainer)
       
-      // Fade in the image
-      gsap.to(img, { opacity: 1, duration: 0.5 })
-      
-      // Hold for 4 seconds then fade out
-      gsap.delayedCall(3.5, () => {
+      // Fade in the image quickly
+      gsap.to(img, { opacity: 1, duration: 0.25 })
+
+      // Hold so total display ~2s then quick fade out
+      gsap.delayedCall(1.75, () => {
         gsap.to(img, { 
           opacity: 0, 
-          duration: 0.5,
+          duration: 0.25,
           onComplete: () => {
             document.body.removeChild(imageContainer)
           }
         })
       })
-    }, 23)
+    }, 17)
 
-    // Radio waves (after Visible Light)
+    // Radio waves (after Visible Light) - 2s display
     timeline.add(() => {
       const radioWaves: THREE.Mesh[] = []
       const waveCount = 20
@@ -1285,34 +1365,34 @@ export default function Home() {
         scene.add(wave)
         radioWaves.push(wave)
 
-        // Fade in
+        // Fade in quickly
         gsap.to(tubeMaterial, {
           opacity: 0.7,
-          duration: 0.5,
-          delay: i * 0.05,
+          duration: 0.25,
+          delay: i * 0.02,
           ease: "power2.out",
         })
 
-        // Propagate left -> right across entire screen
+        // Propagate left -> right across entire screen (2s)
         gsap.to(wave.position, {
           x: 15,
-          duration: 4,
-          delay: i * 0.05,
+          duration: 2,
+          delay: i * 0.02,
           ease: "none",
         })
 
-        // Fade out at end
+        // Fade out at end (~1.8s)
         gsap.to(tubeMaterial, {
           opacity: 0,
-          duration: 0.5,
-          delay: 3.6 + i * 0.05,
+          duration: 0.25,
+          delay: 1.8 + i * 0.02,
           ease: "power2.in",
           onComplete: () => {
             scene.remove(wave)
           },
         })
       }
-    }, 27)
+    }, 19)
 
     timeline.add(() => {
       const microwaveWaves: THREE.Mesh[] = []
@@ -1343,27 +1423,27 @@ export default function Home() {
         scene.add(wave)
         microwaveWaves.push(wave)
 
-        // Pulsed appearance
+        // Pulsed appearance (quick)
         gsap.to(tubeMaterial, {
           opacity: 0.8,
-          duration: 0.3,
-          delay: i * 0.15,
+          duration: 0.25,
+          delay: i * 0.08,
           ease: "power2.out",
         })
 
-        // Fast propagation left to right
+        // Fast propagation left to right (2s)
         gsap.to(wave.position, {
           x: 0,
-          duration: 4,
-          delay: i * 0.15,
+          duration: 2,
+          delay: i * 0.08,
           ease: "none",
         })
 
-        // Pulse opacity
+        // Pulse opacity - keep subtle but faster
         gsap.to(tubeMaterial, {
           opacity: 0.3,
-          duration: 0.4,
-          delay: i * 0.15 + 0.3,
+          duration: 0.3,
+          delay: i * 0.08 + 0.2,
           ease: "sine.inOut",
           repeat: -1,
           yoyo: true,
@@ -1372,15 +1452,15 @@ export default function Home() {
         // Fade out
         gsap.to(tubeMaterial, {
           opacity: 0,
-          duration: 0.6,
-          delay: 3.4,
+          duration: 0.25,
+          delay: 1.7 + i * 0.08,
           ease: "power2.in",
           onComplete: () => {
             scene.remove(wave)
           },
         })
       }
-    }, 31)
+    }, 21)
 
     timeline.add(() => {
       const uvRings: THREE.Mesh[] = []
@@ -1409,11 +1489,11 @@ export default function Home() {
         scene.add(ring)
         uvRings.push(ring)
 
-        // Sharp flash
+        // Sharp flash (staggered shorter)
         gsap.to(ringMaterial, {
           opacity: 0.9,
-          duration: 0.1,
-          delay: i * 0.6,
+          duration: 0.08,
+          delay: i * 0.15,
           ease: "power4.out",
         })
 
@@ -1421,31 +1501,31 @@ export default function Home() {
         gsap.to(ring.scale, {
           x: 8,
           y: 8,
-          duration: 0.8,
-          delay: i * 0.6,
+          duration: 0.5,
+          delay: i * 0.15,
           ease: "power2.out",
         })
 
         // Move forward
         gsap.to(ring.position, {
           z: ring.position.z + 12,
-          duration: 0.8,
-          delay: i * 0.6,
+          duration: 0.5,
+          delay: i * 0.15,
           ease: "power2.out",
         })
 
         // Quick fade
         gsap.to(ringMaterial, {
           opacity: 0,
-          duration: 0.4,
-          delay: i * 0.6 + 0.4,
+          duration: 0.3,
+          delay: i * 0.15 + 0.4,
           ease: "power2.in",
           onComplete: () => {
             scene.remove(ring)
           },
         })
       }
-    }, 35)
+    }, 23)
 
     // FALSE NAVIGATION SIGNAL (10-second 3-line animation)
     timeline.add(() => {
@@ -1757,7 +1837,7 @@ export default function Home() {
       })
 
 
-    }, 39)
+    }, 25)
 
     // Spectrum sections are controlled by the interval sequence (Radio, Microwave, Ultraviolet)
 
@@ -1781,10 +1861,10 @@ export default function Home() {
 
       {currentSection === "hero" && (
         <div className="fixed top-3/5 -translate-y-1/2 left-8 md:left-16 lg:left-24 pointer-events-auto z-50 hero-text max-w-[45%]">
-          <h1 className="text-3xl md:text-5xl lg:text-7xl font-bold text-cyan-400 mb-3 md:mb-6 leading-tight tracking-tight">
+          <h1 className="text-3xl md:text-5xl lg:text-7xl font-bold text-white mb-3 md:mb-6 leading-tight tracking-tight">
             PSYC Aerospace and Defence Industries Pvt Ltd
           </h1>
-          <p className="text-xs md:text-lg lg:text-2xl text-gray-300 leading-relaxed">
+          <p className="text-xs md:text-lg lg:text-2xl text-blue-300 leading-relaxed">
             <span className="block md:inline whitespace-nowrap">AI-First payload systems | Computer vision</span>
             <span className="block md:inline whitespace-nowrap">Automation for next gen wars</span>
           </p>
@@ -1849,29 +1929,29 @@ export default function Home() {
             {currentSpectrumSection === 0 && (
               <div className="text-left animate-fade-in">
                 <h2 className="text-3xl md:text-5xl font-bold text-cyan-400 mb-2 font-mono">RADIO WAVES</h2>
-                <p className="text-sm md:text-lg text-cyan-300 font-mono">Long-range communication</p>
-                <p className="text-sm md:text-lg text-cyan-300 font-mono">Navigation • Surveillance</p>
+                <p className="text-sm md:text-lg text-cyan-300 font-mono"><RadioAntennaIcon className="inline-block mr-3 align-middle" />Long-range communication</p>
+                <p className="text-sm md:text-lg text-cyan-300 font-mono"><SatelliteIcon className="inline-block mr-3 align-middle" />Navigation • Surveillance</p>
               </div>
             )}
             {currentSpectrumSection === 1 && (
               <div className="text-left animate-fade-in">
                 <h2 className="text-3xl md:text-5xl font-bold text-orange-400 mb-2 font-mono">MICROWAVE</h2>
-                <p className="text-sm md:text-lg text-orange-300 font-mono">Radar systems</p>
-                <p className="text-sm md:text-lg text-orange-300 font-mono">Target detection</p>
-                <p className="text-sm md:text-lg text-orange-300 font-mono">Electronic countermeasures</p>
+                <p className="text-sm md:text-lg text-orange-300 font-mono"><RadarIcon className="inline-block mr-3 align-middle" />Radar systems</p>
+                <p className="text-sm md:text-lg text-orange-300 font-mono"><CrosshairIcon className="inline-block mr-3 align-middle" />Target detection</p>
+                <p className="text-sm md:text-lg text-orange-300 font-mono"><ECMIcon className="inline-block mr-3 align-middle" />Electronic countermeasures</p>
               </div>
             )}
             {currentSpectrumSection === 2 && (
               <div className="text-left animate-fade-in">
                 <h2 className="text-3xl md:text-5xl font-bold text-red-400 mb-2 font-mono">INFRARED</h2>
-                <p className="text-sm md:text-lg text-red-300 font-mono">Thermal sensing</p>
-                <p className="text-sm md:text-lg text-red-300 font-mono">Heat signatures</p>
+                <p className="text-sm md:text-lg text-red-300 font-mono"><ThermometerIcon className="inline-block mr-3 align-middle" />Thermal sensing</p>
+                <p className="text-sm md:text-lg text-red-300 font-mono"><FireIcon className="inline-block mr-3 align-middle" />Heat signatures</p>
               </div>
             )}
             {currentSpectrumSection === 3 && (
               <div className="text-left animate-fade-in">
                 <h2 className="text-3xl md:text-5xl font-bold text-white mb-2 font-mono">VISIBLE LIGHT</h2>
-                <p className="text-sm md:text-lg text-gray-300 font-mono">Human perception spectrum</p>
+                <p className="text-sm md:text-lg text-gray-300 font-mono"><VisibleIcon className="inline-block mr-3 align-middle" />Human perception spectrum</p>
               </div>
             )}
             {currentSpectrumSection === 4 && (
@@ -1879,7 +1959,7 @@ export default function Home() {
                 <h2 className="text-3xl md:text-5xl font-bold text-purple-400 mb-2 font-mono opacity-80">
                   ULTRAVIOLET • X-RAY
                 </h2>
-                <p className="text-sm md:text-lg text-purple-300 font-mono opacity-80">High-energy radiation</p>
+                <p className="text-sm md:text-lg text-purple-300 font-mono opacity-80"><UVIcon className="inline-block mr-3 align-middle" />High-energy radiation</p>
               </div>
             )}
           </div>
