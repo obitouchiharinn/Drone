@@ -1890,7 +1890,7 @@ export default function Home() {
       )}
 
       {currentSection === "swarm" && (
-        <div className="fixed top-12 md:top-20 lg:top-24 left-2/3 -translate-x-1/2 text-center pointer-events-auto z-50 swarm-text max-w-[60%]">
+        <div className="fixed top-12 md:top-20 lg:top-24 left-2/3 -translate-x-1/2 text-center pointer-events-auto z-50 swarm-text max-w-[60%]" style={{ transform: 'translate(calc(-50% + 4px), 0)' }}>
           <h2 className="text-2xl md:text-4xl lg:text-6xl font-bold text-cyan-400 mb-2 md:mb-4 tracking-wider font-mono">
             UAV SWARM TECHNOLOGY
           </h2>
@@ -2055,7 +2055,7 @@ export default function Home() {
             /* Mobile layout: center title at top and keep drone below */
             .hero-text {
               left: 50% !important;
-              transform: translate(-50%, 0) !important;
+              transform: translate(calc(-50% + 2px), 0) !important;
               top: 18% !important;
               max-width: 90% !important;
               text-align: center !important;
@@ -2065,12 +2065,12 @@ export default function Home() {
             .hero-text h1 {
               font-size: 1.4rem !important;
               line-height: 1.05 !important;
-              max-width: 16rem !important;
-              /* clamp to 2 lines on small screens */
-              display: -webkit-box !important;
-              -webkit-line-clamp: 2 !important;
-              -webkit-box-orient: vertical !important;
-              overflow: hidden !important;
+              max-width: none !important;
+              /* Allow title to wrap naturally on small screens */
+              display: block !important;
+              -webkit-line-clamp: unset !important;
+              -webkit-box-orient: unset !important;
+              overflow: visible !important;
               text-wrap: normal !important;
               word-break: keep-all !important;
             }
@@ -2083,16 +2083,16 @@ export default function Home() {
               text-align: center !important;
               max-width: 90% !important;
             }
-            /* Place detector title at the same position as jamming on mobile */
+            /* Place detector title centered on mobile */
             .detector-text {
               position: fixed !important;
-              left: calc(50vw + 8px) !important;
+              left: 50% !important;
               right: auto !important;
-              transform: translateX(-50%) translateY(0) !important;
-              top: calc(40% - 10rem) !important;
+              transform: translate(-50%, 0) !important;
+              /* raise slightly on mobile */
+              top: calc(34% - 10rem) !important;
               text-align: center !important;
               max-width: 90% !important;
-              width: max-content !important;
               display: block !important;
               margin: 0 auto !important;
             }
