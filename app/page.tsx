@@ -1913,7 +1913,7 @@ export default function Home() {
             style={{
               left:
                 currentSpectrumSection === 0
-                  ? "calc(20%)"
+                  ? "calc(10%)"
                   : currentSpectrumSection === 3
                   ? "calc(15%)"
                   : currentSpectrumSection % 2 === 0
@@ -1922,7 +1922,7 @@ export default function Home() {
               top: (typeof window !== 'undefined' && window.innerWidth <= 768 && currentSpectrumSection === 1)
                 ? "calc(66% + 5px)"
                 : currentSpectrumSection === 0
-                ? "60%"
+                ? "68%"
                 : currentSpectrumSection === 1 ||
                   currentSpectrumSection === 4
                 ? "55%"
@@ -2091,7 +2091,7 @@ export default function Home() {
               position: fixed !important;
               left: 50% !important;
               right: auto !important;
-              transform: translate(calc(-50% + 5px), 0) !important;
+              transform: translate(calc(-50% + 35px), 0) !important;
               /* raise slightly on mobile */
               top: calc(32% - 10rem) !important;
             }
