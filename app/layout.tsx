@@ -8,25 +8,17 @@ const _geist = Geist({ subsets: ["latin"] })
 const _geistMono = Geist_Mono({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Military Drone | 3D Experience",
+  title: "PSYC Aerospace",
   description: "Premium 3D drone website with realistic flight physics and cinematic animations",
-  generator: "v0.app",
   icons: {
     icon: [
       {
-        url: "/icon-light-32x32.png",
-        media: "(prefers-color-scheme: light)",
-      },
-      {
-        url: "/icon-dark-32x32.png",
-        media: "(prefers-color-scheme: dark)",
-      },
-      {
-        url: "/icon.svg",
-        type: "image/svg+xml",
+        url: "https://image.made-in-china.com/202f0j00QMJkfalqnVcd/E88-Drone-WiFi-Fpv-RC-Dron-with-Dual-PRO-4K-HD-Camera-Wide-Angle-Remote-Control-Video-Quadcopter-Toy-Drones-Drone-E88.webp",
+        type: "image/webp",
       },
     ],
-    apple: "/apple-icon.png",
+    shortcut: "https://image.made-in-china.com/202f0j00QMJkfalqnVcd/E88-Drone-WiFi-Fpv-RC-Dron-with-Dual-PRO-4K-HD-Camera-Wide-Angle-Remote-Control-Video-Quadcopter-Toy-Drones-Drone-E88.webp",
+    apple: "https://image.made-in-china.com/202f0j00QMJkfalqnVcd/E88-Drone-WiFi-Fpv-RC-Dron-with-Dual-PRO-4K-HD-Camera-Wide-Angle-Remote-Control-Video-Quadcopter-Toy-Drones-Drone-E88.webp",
   },
 }
 
